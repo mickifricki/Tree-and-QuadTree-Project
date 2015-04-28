@@ -12,8 +12,8 @@ class TreeNode
 
 public:
 
-	type				data;
-	TreeNode*			parent;
+	type data;
+	TreeNode* parent;
 	p2List<TreeNode*> childs;
 
 public:
@@ -24,7 +24,7 @@ public:
 		parent = NULL;
 	}
 
-	void AddChild(TreeNode* node)
+	void AddLeaf(TreeNode* node)
 	{
 		if (node != NULL)
 		{
@@ -33,7 +33,7 @@ public:
 		}
 	}
 
-	bool RemoveChild(TreeNode* node)
+	bool RemoveLeaf(TreeNode* node)
 	{
 		bool ret = false;
 		if (node != NULL){
@@ -232,13 +232,13 @@ public:
 	{
 		TreeNode<type>* p = root.FindRecursive(parent);
 		TreeNode<type>* node = new TreeNode<type>(data);
-		p->AddChild(node);
+		p->AddLeaf(node);
 	}
 
 	void Add(const type& data)
 	{
 		TreeNode<type>* node = new TreeNode<type>(data);
-		trunk.AddChild(node);
+		trunk.AddLeaf(node);
 	}
 
 	bool Relocate(const type& data, const type& parent)
@@ -250,8 +250,8 @@ public:
 
 		if (dad && child && child->parent != dad)
 		{
-			child->parent->RemoveChild(child);
-			dad->AddChild(child);
+			child->parent->RemoveLeaf(child);
+			dad->AddLeaf(child);
 			ret = true;
 		}
 
@@ -276,7 +276,7 @@ public:
 				TreeNode<type>* child = item->data;
 
 				if (child->parent)
-					child->parent->RemoveChild(child);
+					child->parent->RemoveLeaf(child);
 			}
 
 			ret = true;
