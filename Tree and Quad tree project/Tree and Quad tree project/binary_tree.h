@@ -1,394 +1,310 @@
-#ifndef __BINARY_TREE_H__
-#define __BINARY_TREE_H__
 
-#include <iostream>
-#include <cstdlib>
+#ifndef __binary_tree_H__
+#define __binary_tree_H__
 
-using namespace std;
+#include "p2List.h"
+#include "p2Stack.h"
 
+// Tree node -------------------------------------------------------
 template<class type>
-class binary_tree
+class TreeNode
 {
-private:
-	struct tree_node
-	{
-
-		type key;
-		tree_node* left;
-		tree_node* right;
-	};
-
-	tree_node* root;
-
-	tree_node* CreateLeaf(type key)
-	{
-		tree_node* new_node = new tree_node;
-		new_node->key = key;
-		new_node->left = NULL;
-		new_node->right = NULL;
-
-		return new_node;
-	}
-
-
-	void AddLeafPrivate(type key, tree_node* Ptr)
-	{
-		if (root == NULL)
-		{
-			root = CreateLeaf(key);
-		}
-		else if (key < Ptr->key)
-		{
-			if (Ptr->left != NULL)
-			{
-				AddLeafPrivate(key, Ptr->left);
-			}
-			else
-			{
-				Ptr->left = CreateLeaf(key);
-			}
-		}
-		else if (key > Ptr->key)
-		{
-			if (Ptr->right != NULL)
-			{
-				AddLeafPrivate(key, Ptr->right);
-			}
-			else
-			{
-				Ptr->right = CreateLeaf(key);
-			}
-		}
-		else
-		{
-			printf("The key %d has already been added to the tree", key);
-		}
-
-	}
-
-
-	void PrintInOrderPrivate(tree_node* Ptr)
-	{
-		if (root != NULL)
-		{
-			if (Ptr->left != NULL)
-			{
-				PrintInOrderPrivate(Ptr->left);
-			}
-			cout << Ptr->key << " ";
-			if (Ptr->right != NULL)
-			{
-				PrintInOrderPrivate(Ptr->right);
-			}
-		}
-		else
-		{
-			printf("The tree is empty \n");
-		}
-	}
-
-	tree_node* ReturnNode(type key)
-	{
-		return ReturnNodePrivate(key, root);
-	}
-
-	tree_node* ReturnNodePrivate(type key, tree_node* Ptr)
-	{
-		if (Ptr != NULL)
-		{
-			if (Ptr->key == key)
-			{
-				return Ptr;
-			}
-			else
-			{
-				if (key < Ptr->key)
-				{
-					return ReturnNodePrivate(key, Ptr->left);
-				}
-				else
-				{
-					return ReturnNodePrivate(key, Ptr->right);
-				}
-			}
-		}
-	}
-
-	type FindSmallestPrivate(tree_node* Ptr)
-	{
-		if (root == NULL)
-		{
-			cout << "The tree is empty\n";
-			return NULL;
-		}
-		else
-		{
-			if (Ptr->left != NULL)
-			{
-				return FindSmallestPrivate(Ptr->left);
-			}
-			else
-			{
-				return Ptr->key;
-			}
-		}
-	}
-
-	void RemoveNodePrivate(type key, tree_node* parent)
-	{
-		if (root != NULL)
-		{
-			if(root->key == key)
-			{
-				RemoveRootMatch();
-			}
-			else
-			{
-				if (key < parent->key && parent->left != NULL)
-				{
-					parent->left->key == key ?
-						RemoveMatch(parent, parent->left, true) :
-						RemoveNodePrivate(key, parent->left);
-				}
-				else if (key > parent->key && parent->right != NULL)
-				{
-					parent->right->key == key ?
-						RemoveMatch(parent, parent->right, false) :
-						RemoveNodePrivate(key, parent->right);
-				}
-				else
-				{
-					cout << "The key " << key << " was not found in the tree.\n";
-				}
-			}
-		}
-		else
-		{
-			cout << "The tree is empty\n";
-		}
-	}
-
-	void RemoveRootMatch()
-	{
-		if (root != NULL)
-		{
-			tree_node* delPtr = root;
-			type rootkey = root->key;
-			type smallestInRightSubtree;
-
-			//Case 0 - 0 children
-			if (root->left == NULL && root->right == NULL)
-			{
-				root = NULL;
-				delete delPtr;
-			}
-
-			//Case 1 - 1 child
-			else if (root->left == NULL && root->right != NULL)
-			{
-				root = root->right;
-				delPtr->right = NULL;
-				delete delPtr;
-				cout << "The root node with key " << rootkey << " was deleted.\n" <<
-						"The new root contains key " << root->key << endl;
-
-			}
-			else if (root->left != NULL && root->right == NULL)
-			{
-				root = root->left;
-				delPtr->left = NULL;
-				delete delPtr;
-				cout << "The root node with key " << rootkey << " was deleted.\n" <<
-					"The new root contains key " << root->key << endl;
-
-			}
-
-			//Case 2 - 2 children
-			else
-			{
-				smallestInRightSubtree = FindSmallestPrivate(root->right);
-				RemoveNodePrivate(smallestInRightSubtree, root);
-				root->key = smallestInRightSubtree;
-				cout << "The root key containing key " << rootkey <<
-						" was overwriten with key " << root->key << endl;
-			}
-				
-		}
-		else
-		{
-			cout << "Can not remove root. The tree is empty\n";
-		}
-
-	}
-
-	void RemoveMatch(tree_node* parent, tree_node* match, bool left)
-	{
-		if (root != NULL)
-		{
-			tree_node* delPtr;
-			type matchkey = match->key;
-			type smallestInRightSubtree;
-
-			//Case 0 - 0 Children
-			if (match->left == NULL && match->right == NULL)
-			{
-				delPtr = match;
-				left == true ? parent->left = NULL : parent->right = NULL;
-				delete delPtr;
-				cout << "The node containing key " << matchkey << " was removed \n";
-			}
-
-			//Case 1 - 1 Children 
-			else if (match->left == NULL && match->right != NULL)
-			{
-				left == true ? parent->left = match->right : parent->right = match->right;
-				match->right = NULL;
-				delPtr = match;
-				delete delPtr;
-				cout << "The node containing key " << matchkey << " was removed \n";
-			}
-			else if (match->left != NULL && match->right == NULL)
-			{
-				left == true ? parent->left = match->left : parent->right = match->left;
-				match->left = NULL;
-				delPtr = match;
-				delete delPtr;
-				cout << "The node containing key " << matchkey << " was removed \n";
-			}
-
-			//case 2 - 2 Children
-			else
-			{
-				smallestInRightSubtree = FindSmallestPrivate(match->right);
-				RemoveNodePrivate(smallestInRightSubtree, match);
-				match->key = smallestInRightSubtree;
-			}
-		}
-		else
-		{
-			cout << "Can not remove match. The tree is empty\n";
-		}
-	}
-
-	void RemoveSubtree(tree_node* Ptr)
-	{
-		if(Ptr != NULL)
-		{
-			if (Ptr->left != NULL)
-			{
-				RemoveSubtree(Ptr->left);
-			}
-			if (Ptr->right != NULL)
-			{
-				RemoveSubtree(Ptr->right);
-			}
-			cout << "Deleting the node containing key " << Ptr->key << endl;
-			delete Ptr;
-
-		}
-	}
-
 
 public:
 
-	binary_tree()
+	type				data;
+	TreeNode*			parent;
+	p2List<TreeNode*> childs;
+
+public:
+
+	TreeNode(const type& _data)
 	{
-		root = NULL;
+		data = _data;
+		parent = NULL;
 	}
 
-	~binary_tree()
+	void AddChild(TreeNode* node)
 	{
-		RemoveSubtree(root);
-	}
-
-	void AddLeaf(type key)
-	{
-		AddLeafPrivate(key, root);
-	}
-
-	void PrintInOrder()
-	{
-		PrintInOrderPrivate(root);
-	}
-	type ReturnRootKey()
-	{
-		if (root != NULL)
+		if (node != NULL)
 		{
-			return root->key;
-		}
-		else
-		{
-			return NULL;
+			childs.add(node);
+			node->parent = this;
 		}
 	}
-	void PrintChidren(type key)
+
+	bool RemoveChild(TreeNode* node)
 	{
-		tree_node* Ptr = ReturnNode(key);
+		bool ret = false;
+		if (node != NULL){
+			
+			p2List_item<TreeNode*>* item = childs.start;
+			for (; item != NULL; item = item->next)
+			{
+				TreeNode* child = item->data;
 
-		if (Ptr != NULL)
-		{
-			cout << "Parent Node = " << Ptr->key << endl;
-
-				Ptr->left == NULL ?
-				cout << "Left Child = NULL\n" :
-				cout << "Left Child = " << Ptr->left->key << endl;
-
-				Ptr->right == NULL ?
-				cout << "Left Child = NULL\n" :
-				cout << "Left Child = " << Ptr->right->key << endl;
+				if (node == child)
+				{
+					childs.del(item);
+					node->parent = NULL;
+					ret = true;
+					break;
+				}
+			}
 		}
-		else
+		return ret;
+	}
+
+	void PreOrderRecursive(p2List<TreeNode<type>*>* list)
+	{
+		list->add(this);
+
+		p2List_item<TreeNode*>* item = childs.start;
+
+		for (; item != NULL; item = item->next)
+			item->data->PreOrderRecursive(list);
+	}
+
+	void InOrderRecursive(p2List<TreeNode<type>*>* list)
+	{
+		p2List_item<TreeNode*>* item = childs.start;
+		unsigned int mid = childs.count() / 2;
+
+		for (unsigned int i = 0; i < mid; ++i, item = item->next)
+			item->data->InOrderRecursive(list);
+
+		list->add(this);
+
+		for (; item != NULL; item = item->next)
+			item->data->InOrderRecursive(list);
+	}
+
+	void PostOrderRecursive(p2List<TreeNode<type>*>* list)
+	{
+		p2List_item<TreeNode*>* item = childs.start;
+
+		for (; item != NULL; item = item->next)
+			item->data->PostOrderRecursive(list);
+
+		list->add(this);
+	}
+
+	TreeNode<type>* FindRecursive(const type& node)
+	{
+		if (node == data)
+			return this;
+
+		TreeNode<type>* result = NULL;
+		p2List_item<TreeNode*>* item = childs.start;
+		for (; item != NULL; item = item->next)
 		{
-			cout << "Key " << key << " is not in the tree\n";
+			TreeNode* child = item->data;
+			result = child->FindRecursive(node);
+
+			if (result != NULL)
+				break;
 		}
 
+		return result;
 	}
 
-	type FindSmallest()
+	void GatherAll(p2List<TreeNode*>* list)
 	{
-		return FindSmallestPrivate(root);
+		if (list != NULL){
+			list->add(this);
+
+			p2List_item<TreeNode*>* item = childs.start;
+
+			for (; item != NULL; item = item->next)
+			{
+				TreeNode* child = item->data;
+				child->GatherAll(list);
+			}
+		}
 	}
 
-	void RemoveNode(type key)
+	void GatherAllData(p2List<type>* list)
 	{
-		return RemoveNodePrivate(key, root);
+		if (list != NULL){
+			list->add(data);
+
+			p2List_item<TreeNode*>* item = childs.start;
+
+			for (; item != NULL; item = item->next)
+			{
+				TreeNode* child = item->data;
+				child->GatherAllData(list);
+			}
+		}
 	}
 
+};
 
+// Tree class -------------------------------------------------------
+template<class type>
+class Tree
+{
+public:
 
+	// Constructor
+	Tree(const type& _data) : root(_data)
+	{}
 
+	// Destructor
+	virtual ~Tree()
+	{}
+
+	void PreOrderRecursive(p2List<TreeNode<type>*>* list)
+	{
+		root.PreOrderRecursive(list);
+	}
+
+	void PostOrderRecursive(p2List<TreeNode<type>*>* list)
+	{
+		root.PostOrderRecursive(list);
+	}
+
+	void InOrderRecursive(p2List<TreeNode<type>*>* list)
+	{
+		root.InOrderRecursive(list);
+	}
+
+	void PreOrderIterative(p2List<TreeNode<type>*>* list)
+	{
+		p2Stack<TreeNode<type>*> stack;
+		TreeNode<type>* node = &root;
+
+		while (node != NULL || stack.Pop(node))
+		{
+			list->add(node);
+
+			p2List_item<TreeNode<type>*>* item = node->childs.end;
+			for (; item != node->childs.start; item = item->prev)
+				stack.Push(item->data);
+
+			node = (item != NULL) ? item->data : NULL;
+		}
+	}
+
+	void PostOrderIterative(p2List<TreeNode<type>*>* list)
+	{
+		p2Stack<TreeNode<type>*> stack;
+		TreeNode<type>* node = &root;
+
+		while (node != NULL || stack.Pop(node))
+		{
+			p2List_item<TreeNode<type>*>* item = node->childs.end;
+
+			if (item != NULL && list->find(item->data) == -1)
+			{
+				stack.Push(node);
+				for (; item != node->childs.start; item = item->prev)
+					stack.Push(item->data);
+
+				node = item->data;
+			}
+			else
+			{
+				list->add(node);
+				node = NULL;
+			}
+		}
+	}
+
+	void InOrderIterative(p2List<TreeNode<type>*>* list)
+	{
+		p2Stack<TreeNode<type>*> stack;
+		TreeNode<type>* node = &root;
+
+		while (node != NULL || stack.Pop(node))
+		{
+			list->add(node);
+
+			p2List_item<TreeNode<type>*>* item = node->childs.end;
+			for (; item != node->childs.start; item = item->prev)
+				stack.Push(item->data);
+
+			node = (item != NULL) ? item->data : NULL;
+		}
+	}
+
+	void Add(const type& data, const type& parent)
+	{
+		TreeNode<type>* p = root.FindRecursive(parent);
+		TreeNode<type>* node = new TreeNode<type>(data);
+		p->AddChild(node);
+	}
+
+	void Add(const type& data)
+	{
+		TreeNode<type>* node = new TreeNode<type>(data);
+		trunk.AddChild(node);
+	}
+
+	bool Relocate(const type& data, const type& parent)
+	{
+		bool ret = false;
+
+		TreeNode<type>* dad = root.FindRecursive(parent);
+		TreeNode<type>* child = root.FindRecursive(data);
+
+		if (dad && child && child->parent != dad)
+		{
+			child->parent->RemoveChild(child);
+			dad->AddChild(child);
+			ret = true;
+		}
+
+		return ret;
+	}
+
+	bool DelRecursive(const type& data)
+	{
+		bool ret = false;
+
+		TreeNode<type>* node = root.FindRecursive(data);
+
+		if (node != NULL)
+		{
+			p2List<TreeNode<type>*> results;
+			node->GatherAll(&results);
+
+			p2List_item<TreeNode<type>*>* item = results.start;
+
+			for (; item != NULL; item = item->next)
+			{
+				TreeNode<type>* child = item->data;
+
+				if (child->parent)
+					child->parent->RemoveChild(child);
+			}
+
+			ret = true;
+		}
+
+		return ret;
+	}
+
+	void Clear()
+	{
+		p2List<TreeNode<type>*> results;
+		root.GatherAll(&results);
+
+		p2List_item<TreeNode<type>*>* item = results.start;
+		for (; item != NULL; item = item->next)
+		{
+			TreeNode<type>* child = item->data;
+			if (child->parent)
+				child->parent->RemoveChild(child);
+		}
+	}
+
+public:
+
+	TreeNode<type>	root;
 
 };
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#endif //__BINARY_TREE_H__
+#endif // __binary_tree_H__
